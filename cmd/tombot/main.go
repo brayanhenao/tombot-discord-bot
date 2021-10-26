@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/brayanhenao/bachatombot-discord-bot/internal"
-	config "github.com/brayanhenao/bachatombot-discord-bot/internal/config"
+	"github.com/brayanhenao/tombot-discord-bot/internal"
+	config "github.com/brayanhenao/tombot-discord-bot/internal/config"
 	"github.com/bwmarrin/discordgo"
 )
 

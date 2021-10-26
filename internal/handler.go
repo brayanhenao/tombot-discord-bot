@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	commands "github.com/brayanhenao/bachatombot-discord-bot/internal/commands"
-	config "github.com/brayanhenao/bachatombot-discord-bot/internal/config"
+	commands "github.com/brayanhenao/tombot-discord-bot/internal/commands"
+	config "github.com/brayanhenao/tombot-discord-bot/internal/config"
 	"github.com/bwmarrin/discordgo"
 )
 
