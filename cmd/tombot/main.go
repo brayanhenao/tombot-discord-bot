@@ -43,7 +43,7 @@ func main() {
 		log.Println(err)
 	}
 
-	log.Println("BachatomBot is running!")
+	log.Println("TomBot is running!")
 	lock := make(chan int)
 	<-lock
 }

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func GetJson(url string) (RedditResponse, error) {
+func GetRedditResponse(url string) (RedditResponse, error) {
 	userAgent := "Reddit JSON API"
 
 	client := &http.Client{Timeout: 10 * time.Second}
@@ -35,7 +35,6 @@ func GetJson(url string) (RedditResponse, error) {
 }
 
 type RedditResponse struct {
-	Kind string `json:"kind"`
 	Data struct {
 		Children []ResponseData `json:"children,omitempty"`
 	} `json:"data"`
