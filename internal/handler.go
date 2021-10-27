@@ -28,15 +28,15 @@ func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			commands.Play(session, message.ChannelID)
 
 		case "stop":
-			log.Println("Handle play request")
+			log.Println("Handle stop request")
 			commands.Stop(session, message.ChannelID)
 
 		case "skip":
-			log.Println("Handle play request")
+			log.Println("Handle skip request")
 			commands.Skip(session, message.ChannelID)
 
 		case "queue":
-			log.Println("Handle play request")
+			log.Println("Handle queue request")
 			commands.Queue(session, message.ChannelID)
 
 		case "nsfw":

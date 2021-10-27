@@ -23,7 +23,6 @@ var (
 )
 
 func Nsfw(session *discordgo.Session, channelId string) {
-
 	if config.CallNum == -1 {
 		Helper, err = RefillImages()
 		if err != nil {
@@ -58,27 +57,27 @@ func RefillImages() (RedditHelper, error) {
 
 	var (
 		err            error
-		response       []utils.ResponseData
+		data           []utils.ResponseData
 		redditResponse utils.RedditResponse
 	)
 
 	subredditsUrls := getSubredditsUrls()
 
 	for _, url := range subredditsUrls {
-		redditResponse, err = utils.GetJson(url)
+		redditResponse, err = utils.GetRedditResponse(url)
 		if err != nil {
 			return RedditHelper{}, err
 		}
 
 		subSlice := redditResponse.Data.Children[2:len(redditResponse.Data.Children)]
-		response = append(response, subSlice...)
+		data = append(data, subSlice...)
 	}
 
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(response), func(i, j int) { response[i], response[j] = response[j], response[i] })
+	rand.Shuffle(len(data), func(i, j int) { data[i], data[j] = data[j], data[i] })
 
 	return RedditHelper{
-		RedditResponse: response,
+		RedditResponse: data,
 	}, nil
 }
 
