@@ -44,6 +44,9 @@ func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 			log.Println("Handle nsfw request")
 			commands.Nsfw(session, message.ChannelID)
 			config.CallNum = config.CallNum + 1
+		default:
+			log.Println("Handle invalid request")
+			commands.ErrorHandler(session,message.ChannelID)
 		}
 	}
 }
