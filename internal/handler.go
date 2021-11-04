@@ -9,6 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+
 func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.ID == config.BotId {
 		return
@@ -25,7 +26,7 @@ func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 
 		case "play":
 			log.Println("Handle play request")
-			commands.Play(session, message.ChannelID)
+			commands.Play(session, message.ChannelID, userMessage)
 
 		case "stop":
 			log.Println("Handle stop request")
