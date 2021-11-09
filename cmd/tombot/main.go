@@ -21,6 +21,11 @@ func main() {
 		log.Fatalln("Environment variable BOT_PREFIX not set")
 	}
 
+	config.GoogleApi = os.Getenv("GOOGLE_API")
+	if config.GoogleApi == ""{
+		log.Fatalln("Environment variable GOOGLE_API not set")
+	}
+
 	discord, err := discordgo.New("Bot " + config.BotToken)
 	if err != nil {
 		log.Fatalln(err)

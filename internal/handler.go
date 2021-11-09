@@ -19,7 +19,8 @@ func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate
 	if strings.HasPrefix(message.Content, config.BotPrefix) {
 
 		userMessage = strings.TrimPrefix(message.Content, config.BotPrefix)
-		switch userMessage {
+		userCommand := strings.Fields(userMessage)
+		switch userCommand[0] {
 		case "ping":
 			log.Println("Handle ping request")
 			commands.Ping(session, message.ChannelID, message.Timestamp)
