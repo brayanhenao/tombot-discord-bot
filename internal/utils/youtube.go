@@ -74,6 +74,10 @@ func GetYoutubeURL(query string)(string, string, error) {
 
 	list, error := searchOnYoutube(query)
 
-	itemsLength := fmt.Sprintf("%d",list.Items[0].Snippet.Title)
+	if strings.Contains(query,"-l"){
+
+	}
+
+	itemsLength := fmt.Sprintf("%s",list.Items[0].Snippet.Title)
 	return itemsLength,"", error
 }
