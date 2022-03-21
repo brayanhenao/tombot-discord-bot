@@ -2,17 +2,18 @@ package commands
 
 import (
 	"fmt"
+	"github.com/brayanhenao/tombot-discord-bot/internal/framework"
 	"log"
 	"time"
-
-	"github.com/bwmarrin/discordgo"
 )
 
-func Ping(session *discordgo.Session, channelId string, timestamp discordgo.Timestamp) {
-	msgTime, err := timestamp.Parse()
+func Ping(ctx framework.Context) {
+	msgTime, err := ctx.Message.Timestamp.Parse()
 	if err != nil {
 		log.Println("error parsing message timestamp %w", err)
 	}
 	nowTime := time.Now()
-	_, _ = session.ChannelMessageSend(channelId, fmt.Sprintf("🏓Latency is %dms", (nowTime.UnixNano()-msgTime.UnixNano())/1000000))
+	_, _ = ctx.Discord.ChannelMessageSend(ctx.TextChannel.ID,
+		fmt.Sprintf("🏓Latency is %dms",
+			(nowTime.UnixNano()-msgTime.UnixNano())/1000000))
 }

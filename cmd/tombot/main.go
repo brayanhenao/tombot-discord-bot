@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/brayanhenao/tombot-discord-bot/internal/commands"
+	"github.com/brayanhenao/tombot-discord-bot/internal/framework"
 	"log"
 	"os"
 
@@ -22,9 +24,18 @@ func main() {
 	}
 
 	config.GoogleApi = os.Getenv("GOOGLE_API")
-	if config.GoogleApi == ""{
+	if config.GoogleApi == "" {
 		log.Fatalln("Environment variable GOOGLE_API not set")
 	}
+
+	config.Handler = framework.NewCommandHandler()
+	config.Handler.Commands = map[string]framework.CommandStruct{
+		"ping": {commands.Ping, "Returns ping in ms"},
+		"nsfw": {commands.Nsfw, "Returns 7w7 things"},
+		"play": {commands.Play, "Plays the songs requested "},
+		"stop": {commands.Stop, "Stops the song queue"},
+	}
+	config.Sessions = framework.NewSessionManager()
 
 	discord, err := discordgo.New("Bot " + config.BotToken)
 	if err != nil {
@@ -38,7 +49,7 @@ func main() {
 
 	config.BotId = user.ID
 
-	discord.AddHandler(internal.MessageHandler)
+	discord.AddHandler(internal.CommandHandler)
 
 	config.CallNum = -1
 
