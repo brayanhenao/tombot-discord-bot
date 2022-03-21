@@ -1,51 +1,48 @@
 package internal
 
 import (
+	config "github.com/brayanhenao/tombot-discord-bot/internal/config"
+	"github.com/brayanhenao/tombot-discord-bot/internal/framework"
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"strings"
-
-	commands "github.com/brayanhenao/tombot-discord-bot/internal/commands"
-	config "github.com/brayanhenao/tombot-discord-bot/internal/config"
-	"github.com/bwmarrin/discordgo"
 )
 
-func MessageHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
-	if message.Author.ID == config.BotId {
+func CommandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
+
+	user := message.Author
+	if user.ID == config.BotId {
+		return
+	}
+	content := message.Content
+	if len(content) <= len(config.BotPrefix) {
+		return
+	}
+	if content[:len(config.BotPrefix)] != config.BotPrefix {
+		return
+	}
+	args := strings.Fields(content[len(config.BotPrefix):])
+	name := strings.ToLower(args[0])
+
+	guild, err := discord.State.Guild(message.GuildID)
+	if err != nil {
+		log.Fatalln("Error getting Guild", err)
+	}
+
+	channel, err := discord.Channel(message.ChannelID)
+	if err != nil {
+		log.Fatalln("Error getting Channel", err)
+	}
+
+	command, found := config.Handler.GetCommand(name)
+	if !found {
+		discord.ChannelMessageSend(channel.ID, "Oops, looks like that command does not exist 🤔")
 		return
 	}
 
-	var userMessage string
-	if strings.HasPrefix(message.Content, config.BotPrefix) {
-
-		userMessage = strings.TrimPrefix(message.Content, config.BotPrefix)
-		switch userMessage {
-		case "ping":
-			log.Println("Handle ping request")
-			commands.Ping(session, message.ChannelID, message.Timestamp)
-
-		case "play":
-			log.Println("Handle play request")
-			commands.Play(session, message.ChannelID)
-
-		case "stop":
-			log.Println("Handle stop request")
-			commands.Stop(session, message.ChannelID)
-
-		case "skip":
-			log.Println("Handle skip request")
-			commands.Skip(session, message.ChannelID)
-
-		case "queue":
-			log.Println("Handle queue request")
-			commands.Queue(session, message.ChannelID)
-
-		case "nsfw":
-			log.Println("Handle nsfw request")
-			commands.Nsfw(session, message.ChannelID)
-			config.CallNum = config.CallNum + 1
-		default:
-			log.Println("Handle invalid request")
-			commands.ErrorHandler(session,message.ChannelID)
-		}
-	}
+	ctx := framework.NewContext(discord, guild, channel, user, message, config.Sessions, config.Handler)
+	ctx.Args = args[1:]
+	c := *command
+	log.Printf("Handling %s request\n", name)
+	c.Command(*ctx)
 }

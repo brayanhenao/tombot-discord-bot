@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"github.com/brayanhenao/tombot-discord-bot/internal/framework"
 	"log"
 	"math/rand"
 	"os"
@@ -22,7 +23,7 @@ var (
 	err    error
 )
 
-func Nsfw(session *discordgo.Session, channelId string) {
+func Nsfw(ctx framework.Context) {
 	if config.CallNum == -1 {
 		Helper, err = RefillImages()
 		if err != nil {
@@ -39,7 +40,7 @@ func Nsfw(session *discordgo.Session, channelId string) {
 			URL: Helper.RedditResponse[config.CallNum].Data["url"].(string),
 		}
 
-		_, err := session.ChannelMessageSendEmbed(channelId, &discordgo.MessageEmbed{
+		_, err := ctx.Discord.ChannelMessageSendEmbed(ctx.TextChannel.ID, &discordgo.MessageEmbed{
 			URL:       messageImage.URL,
 			Title:     Helper.RedditResponse[config.CallNum].Data["title"].(string),
 			Color:     0x1e0f3,
@@ -51,6 +52,9 @@ func Nsfw(session *discordgo.Session, channelId string) {
 			log.Fatalln(err)
 		}
 	}
+
+	//@TODO
+	config.CallNum = config.CallNum + 1
 }
 
 func RefillImages() (RedditHelper, error) {
