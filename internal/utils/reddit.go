@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"github.com/brayanhenao/tombot-discord-bot/internal/config"
 	"log"
 	"net/http"
 	"time"
@@ -17,6 +18,7 @@ func GetRedditResponse(url string) (RedditResponse, error) {
 	}
 
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("API_KEY", config.ApiKey)
 
 	resp, err := client.Do(req)
 	if err != nil {

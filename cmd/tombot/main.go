@@ -28,6 +28,11 @@ func main() {
 		log.Fatalln("Environment variable GOOGLE_API not set")
 	}
 
+	config.ApiKey = os.Getenv("REDDIT_API_KEY")
+	if config.ApiKey == "" {
+		log.Fatalln("Environment variable REDDIT_API_KEY not set")
+	}
+
 	config.Handler = framework.NewCommandHandler()
 	config.Handler.Commands = map[string]framework.CommandStruct{
 		"ping": {commands.Ping, "Returns ping in ms"},
