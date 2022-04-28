@@ -90,7 +90,7 @@ func getSubredditsUrls() []string {
 
 	subreddits := strings.Split(os.Getenv("NSFW_SUBREDDITS"), ",")
 	for _, subreddit := range subreddits {
-		url := fmt.Sprintf("https://www.reddit.com/r/%s/.json?limit=100", subreddit)
+		url := fmt.Sprintf("https://reddit-helper-tombot.herokuapp.com/v1/subreddit/%s", subreddit)
 		subredditsUrls = append(subredditsUrls, url)
 	}
 

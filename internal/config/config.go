@@ -7,7 +7,8 @@ var (
 	BotPrefix string
 	BotToken  string
 	GoogleApi string
+	ApiKey    string
 	CallNum   int
-	Handler *framework.Handler
-	Sessions *framework.SessionManager
+	Handler   *framework.Handler
+	Sessions  *framework.SessionManager
 )
