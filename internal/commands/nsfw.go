@@ -3,15 +3,15 @@ package commands
 import (
 	"fmt"
 	"github.com/brayanhenao/tombot-discord-bot/internal/framework"
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
 
-	config "github.com/brayanhenao/tombot-discord-bot/internal/config"
-	utils "github.com/brayanhenao/tombot-discord-bot/internal/utils"
-	"github.com/bwmarrin/discordgo"
+	"github.com/brayanhenao/tombot-discord-bot/internal/config"
+	"github.com/brayanhenao/tombot-discord-bot/internal/utils"
 )
 
 type RedditHelper struct {
@@ -24,37 +24,73 @@ var (
 )
 
 func Nsfw(ctx framework.Context) {
-	if config.CallNum == -1 {
-		Helper, err = RefillImages()
-		if err != nil {
-			log.Fatalln(err)
+	valid := false
+
+	ignoredUrlProviders := strings.Split(os.Getenv("IGNORED_URL_PROVIDERS"), ",")
+
+	for !valid {
+		if config.CallNum == -1 || config.CallNum == len(Helper.RedditResponse) {
+			Helper, err = RefillImages()
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			config.CallNum = 0
 		}
 
-		config.CallNum++
+		imageUrl := Helper.RedditResponse[config.CallNum].Data["url"].(string)
+		if imageProviderIsValid(imageUrl, ignoredUrlProviders) {
+			if imageContainsGift(imageUrl) {
+				createGiftEmbed(ctx, imageUrl)
+			} else {
+				createImageEmbed(ctx, imageUrl)
+			}
+
+			valid = true
+		}
+		config.CallNum = config.CallNum + 1
+	}
+}
+
+func imageContainsGift(url string) bool {
+	return strings.Contains(url, "gifv") || strings.Contains(url, "gif")
+}
+
+func createImageEmbed(ctx framework.Context, url string) {
+	messageImage := &discordgo.MessageEmbedImage{
+		URL: url,
 	}
 
-	if config.CallNum == len(Helper.RedditResponse) {
-		config.CallNum = -1
-	} else {
-		messageImage := &discordgo.MessageEmbedImage{
-			URL: Helper.RedditResponse[config.CallNum].Data["url"].(string),
-		}
+	_, err := ctx.Discord.ChannelMessageSendEmbed(ctx.TextChannel.ID, &discordgo.MessageEmbed{
+		URL:       messageImage.URL,
+		Title:     Helper.RedditResponse[config.CallNum].Data["title"].(string),
+		Color:     0x1e0f3,
+		Image:     messageImage,
+		Timestamp: time.Now().Format(time.RFC3339),
+	})
 
-		_, err := ctx.Discord.ChannelMessageSendEmbed(ctx.TextChannel.ID, &discordgo.MessageEmbed{
-			URL:       messageImage.URL,
-			Title:     Helper.RedditResponse[config.CallNum].Data["title"].(string),
-			Color:     0x1e0f3,
-			Image:     messageImage,
-			Timestamp: time.Now().Format(time.RFC3339),
-		})
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
-		if err != nil {
-			log.Fatalln(err)
-		}
+func createGiftEmbed(ctx framework.Context, url string) {
+	messageImage := &discordgo.MessageEmbedImage{
+		URL: strings.Replace(url, "gifv", "gif", 1),
 	}
 
-	//@TODO
-	config.CallNum = config.CallNum + 1
+	_, err := ctx.Discord.ChannelMessageSendEmbed(ctx.TextChannel.ID, &discordgo.MessageEmbed{
+		URL:         url,
+		Title:       Helper.RedditResponse[config.CallNum].Data["title"].(string),
+		Color:       0x1e0f3,
+		Image:       messageImage,
+		Timestamp:   time.Now().Format(time.RFC3339),
+		Description: "This is a gif, click the title to see it in full size",
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func RefillImages() (RedditHelper, error) {
@@ -95,4 +131,16 @@ func getSubredditsUrls() []string {
 	}
 
 	return subredditsUrls
+}
+
+func imageProviderIsValid(url string, ignoredUrlProviders []string) bool {
+	valid := true
+	for _, ignoredUrlProvider := range ignoredUrlProviders {
+		if strings.Contains(url, ignoredUrlProvider) {
+			valid = false
+			break
+		}
+	}
+
+	return valid
 }
